@@ -1,0 +1,6 @@
+@helloworld.net_multilang_HostAddress = http://localhost:5008
+
+GET {{helloworld.net_multilang_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
