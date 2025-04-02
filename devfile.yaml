@@ -27,9 +27,9 @@ components:
     - name: flask
       targetPort: 8080
       exposure: public
-    - exposure: none
-      name: debug
+    - name: debug
       targetPort: 5858
+      exposure: private
     env:
     - name: DEBUG_PORT
       value: "5858"
