@@ -1,2 +1,2 @@
-# helloworld-lang-examples
-Web api's that return hello world in many different languages, written in many different programming languages! Enjoy!
+# quickpython-lang
+Requires Flask - python app that quickly returns hello world in our language of preference
