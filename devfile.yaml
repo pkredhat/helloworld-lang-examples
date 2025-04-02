@@ -61,6 +61,14 @@ commands:
     workingDir: ${PROJECT_SOURCE}
   id: run-app
 - exec:
+    commandLine: flask run --debug
+    component: py
+    group:
+      isDefault: true
+      kind: run
+    workingDir: ${PROJECT_SOURCE}
+  id: run-app-flask
+- exec:
     commandLine: pip install debugpy && python -m debugpy --listen 0.0.0.0:${DEBUG_PORT}
       app.py
     component: py
