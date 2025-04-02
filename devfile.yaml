@@ -29,7 +29,7 @@ components:
       exposure: public
     - name: debug
       targetPort: 5858
-      exposure: private
+      exposure: none
     env:
     - name: DEBUG_PORT
       value: "5858"
