@@ -28,7 +28,6 @@ def health():
     except Exception:
         return "Service Unhealthy", 500
 
-
 @main.route("/admin")
 def admin_panel():    
     if request.args.get("password") == "opensesame":        
