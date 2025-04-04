@@ -46,15 +46,6 @@ def admin_panel():
 def version():
     return "0.0.1", 200
 
-@main.route("/api/code", methods=["GET"])
-def code():
-    msg = "The treasure is buried under /api/treasure"
-    rot13 = msg.translate(str.maketrans(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-        "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"
-    ))
-    return Response(rot13, mimetype="text/plain")
-
 @main.route("/", methods=["GET"])
 def index():
     
