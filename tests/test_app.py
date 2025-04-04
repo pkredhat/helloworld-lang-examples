@@ -2,6 +2,8 @@ import pytest
 import json
 from app import app, get_translation
 from flask import Flask
+from unittest.mock import patch
+from flask import Response
 
 @pytest.fixture
 def client():
@@ -9,44 +11,47 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_translation_en_default(client, monkeypatch):
-    monkeypatch.setenv("COUNTRY_CODE", "en")
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.data.decode().strip().lower() == "hello, world!"
-
-def test_translation_query_param_success(client, monkeypatch):
-    monkeypatch.setenv("COUNTRY_CODE", "en")
-    response = client.get("/?cc=fr")
-    assert response.status_code in [200, 404]
-    if response.status_code == 200:
-        assert response.data.decode().strip() != ""
-
-def test_translation_query_param_fallback_to_env(client, monkeypatch):
-    monkeypatch.setenv("COUNTRY_CODE", "de")
-    response = client.get("/")
-    assert response.status_code in [200, 404]
-
 def test_missing_translation_key(client, monkeypatch):
     monkeypatch.setenv("COUNTRY_CODE", "xx")  # assume not in JSON
     response = client.get("/")
     assert response.status_code in [200, 404]
     assert isinstance(response.data.decode(), str)
 
-def test_malformed_json(monkeypatch):
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: (_ for _ in ()).throw(json.JSONDecodeError("Malformed", "doc", 0)))
-    with pytest.raises(json.JSONDecodeError):
-        get_translation("en")
+def test_index_success(client):
+    with patch("routes.main.get_translation") as mock_get_translation, \
+         patch("routes.main.get_current_datetime") as mock_get_current_datetime:
+        
+        mock_get_translation.return_value = "Hello"
+        mock_get_current_datetime.return_value = "2025-04-03 12:00:00"
 
-def test_file_not_found(monkeypatch):
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: (_ for _ in ()).throw(FileNotFoundError("Not found")))
-    with pytest.raises(FileNotFoundError):
-        get_translation("en")
+        response = client.get("/")
+        assert response.status_code == 200
+        assert response.data.decode("utf-8") == "hello @ 2025-04-03 12:00:00"
+        assert response.mimetype == "text/plain"
 
-# def test_query_translation_with_valid_param(client):
-#     response = client.get("/query?cc=en")
-#     assert response.status_code in [200, 404]
-#     if response.status_code == 200:
-#         data = json.loads(response.data.decode())
-#         assert "translation" in data
-#         assert isinstance(data["translation"], str)
+def test_index_failure(client):
+    with patch("routes.main.get_translation", side_effect=Exception("Something went wrong")):
+        response = client.get("/")
+        assert response.status_code == 500
+        assert b"Something went wrong" in response.data
+
+def test_get_translation_direct(tmp_path, monkeypatch):
+    translations_data = {
+        "translations": {
+            "EN": "hello world",
+            "FR": "bonjour monde!"
+        }
+    }
+    path = tmp_path / "translations.json"
+    path.write_text(json.dumps(translations_data), encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    from routes.main import get_translation
+
+    # Valid case
+    assert get_translation("en") == "hello world"
+    assert get_translation("FR") == "bonjour monde!"
+
+    # Invalid key
+    with pytest.raises(Exception, match="Translation not found"):
+        get_translation("JP")

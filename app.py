@@ -14,10 +14,8 @@ from routes.main import get_current_datetime
 # Register routes
 from routes.main import main as main_blueprint
 
-
 app.register_blueprint(main_blueprint)
 
-PORT = 5000
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+# PORT = 5001
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=PORT, debug=True)

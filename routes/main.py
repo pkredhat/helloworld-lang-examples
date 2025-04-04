@@ -21,17 +21,17 @@ def get_translation(country_code):
 def get_current_datetime():
     return datetime.utcnow().isoformat() + "Z"
 
-@main.route("/health", methods=["GET"])
+@main.route("/api/health", methods=["GET"])
 def health():
     try:
         return "OK", 200
     except Exception:
         return "Service Unhealthy", 500
 
-@main.route("/admin")
+@main.route("/api/admin")
 def admin_panel():    
     if request.args.get("password") == "opensesame":        
-        response = requests.get("http://opensesame.pk-world.svc.cluster.local:3000/opensesame")
+        response = requests.get(os.getenv("ADMIN"))
         if response.ok:
             data = json.loads(response.text)
             pretty_json = json.dumps(data, indent=4)
@@ -42,12 +42,23 @@ def admin_panel():
             abort(500, description="There was a problem calling the API, please review your parameters")
     return abort(403, description="Forbidden")
 
-@main.route("/version", methods=["GET"])
+@main.route("/api/version", methods=["GET"])
 def version():
     return "0.0.1", 200
 
+@main.route("/api/code", methods=["GET"])
+def code():
+    msg = "The treasure is buried under /api/treasure"
+    rot13 = msg.translate(str.maketrans(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+        "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"
+    ))
+    return Response(rot13, mimetype="text/plain")
+
 @main.route("/", methods=["GET"])
 def index():
+    
+    # STARTING COUNTRY CODE
     country_code = "en"
 
     try:
