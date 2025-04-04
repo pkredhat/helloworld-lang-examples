@@ -21,12 +21,16 @@ def get_translation(country_code):
 def get_current_datetime():
     return datetime.utcnow().isoformat() + "Z"
 
+
+
 @main.route("/api/health", methods=["GET"])
 def health():
     try:
         return "OK", 200
     except Exception:
         return "Service Unhealthy", 500
+
+
 
 @main.route("/api/admin")
 def admin_panel():    
@@ -42,13 +46,17 @@ def admin_panel():
             abort(500, description="There was a problem calling the API, please review your parameters")
     return abort(403, description="Forbidden")
 
+
+
 @main.route("/api/version", methods=["GET"])
 def version():
     return "0.0.1", 200
 
+
+
 @main.route("/", methods=["GET"])
 def index():
-    
+
     # STARTING COUNTRY CODE
     country_code = "en"
 
