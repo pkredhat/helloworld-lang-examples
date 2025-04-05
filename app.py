@@ -1,21 +1,28 @@
-from flask import Flask
-from dotenv import load_dotenv
+from flask import Flask, request
 import os
-
-# Load environment variables
-load_dotenv()
 
 app = Flask(__name__)
 
-# Testing purposes
-from routes.main import get_translation
-from routes.main import get_current_datetime
+@app.route("/")
+def hello():
+    country = os.environ.get('COUNTRY')
+    if country and len(country) == 2:
+        translation = translations.get(country.upper())
+        if translation:
+            return translation
+        else:
+            return "Translation not available for this country.", 404
+    return "Hello World!"
 
-# Register routes
-from routes.main import main as main_blueprint
 
-app.register_blueprint(main_blueprint)
+translations = {
+    "EN": "Hello World!",
+    "SP": "¡Hola Mundo!",
+    "FR": "Bonjour le monde!",
+    "DE": "Hallo Welt!",
+    "IT": "Ciao Mondo!",
+    "SW": "Hej världen!"
+}
 
-# PORT = 5001
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=PORT, debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
