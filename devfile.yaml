@@ -1,0 +1,35 @@
+schemaVersion: 2.2.2
+metadata:
+  name: python-hello-world
+components:
+  - name: python
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel9:3.19
+      volumeMounts:
+        - name: venv
+          path: /home/user/.venv
+      memoryLimit: '2Gi'
+      memoryRequest: '1Gi'
+      cpuLimit: '2'
+      cpuRequest: '1'
+      mountSources: true
+  - name: venv
+    volume:
+      size: 1G
+commands:
+- id: pip-install-requirements
+  exec:
+    commandLine: pip install -r requirements.txt
+    component: py
+    group:
+      kind: build
+      isDefault: true
+    workingDir: ${PROJECT_SOURCE}
+- id: run-app
+  exec:
+    commandLine: flask run --host=0.0.0.0 --port=5001 --reload
+    component: py
+    group:
+      kind: run
+      isDefault: true
+    workingDir: ${PROJECT_SOURCE}
